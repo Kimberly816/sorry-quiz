@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>選擇題</title>
+<style>
+  body { margin:0; background:#ffe4ec; font-family:sans-serif; padding:30px 16px; }
+  .q { max-width:600px; margin:0 auto 28px; border:5px solid #6b4226; border-radius:12px; padding:20px; background:#fff5f8; }
+  .title { min-height:28px; font-size:20px; font-weight:bold; color:#6b4226; margin-bottom:14px; }
+  .opt { display:block; min-height:24px; margin:10px 0; padding:12px 14px; background:#e75480; color:#fff; border-radius:8px; cursor:pointer; }
+  .opt:hover { background:#c93d6a; }
+  .cute { font-family: "Comic Sans MS", "Chalkboard SE", "Yuanti TC", "jf-openhuninn", "Microsoft JhengHei", cursive; font-weight:900; line-height:1.6; }
+  .opt { transition: all .25s; user-select:none; }
+  #plead { color:#7ec8f0; font-size:13px; margin-top:4px; min-height:18px; }
+  .rt { width:100%; border-collapse:collapse; color:#6b4226; }
+  .rt th, .rt td { border:2px solid #6b4226; padding:10px; text-align:left; }
+  .rt th { background:#f7b6c8; width:40%; }
+  /* 電腦版 */
+  body { min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:40px; box-sizing:border-box; }
+  .q { max-width:900px; width:100%; padding:40px 50px; border-width:6px; border-radius:18px; }
+  .title { font-size:30px; margin-bottom:28px; }
+  .opt { font-size:20px; padding:18px 22px; margin:14px 0; }
+  .opt:hover { transform:scale(1.02); }
+  #plead { font-size:16px; }
+  .rt th, .rt td { font-size:20px; padding:14px; }
+</style>
+</head>
+<body>
+  <div class="q" id="q1">
+    <div class="title cute">對不起，我不應該太過於追求完美，但是在分手後，我總是忘不掉你，你願意原諒我嗎？(⁠´⁠；⁠ω⁠；⁠｀⁠)</div>
+    <div class="opt" id="yes">1. 願意</div>
+    <div class="opt" id="no">2. 不願意</div>
+    <div id="plead"></div>
+  </div>
+  <div class="q" id="q2" style="display:none">
+    <div class="title cute">可以復合嗎？(⁠ㆁ⁠ω⁠ㆁ⁠)</div>
+    <label class="opt"><input type="radio" name="q2"> 1. 一定可以</label>
+    <label class="opt"><input type="radio" name="q2"> 2. 我再想想</label>
+    <label class="opt"><input type="radio" name="q2"> 3. 需要一個抱抱解鎖</label>
+    <label class="opt"><input type="radio" name="q2"> 4. 會考後立刻在一起</label>
+  </div>
+<div class="q" id="result" style="display:none">
+    <div class="title cute">作答結果</div>
+    <table class="rt">
+      <tr><th>第一題</th><td>願意</td></tr>
+      <tr><th>按「不願意」次數</th><td id="r-no"></td></tr>
+      <tr><th>第二題</th><td id="r-q2"></td></tr>
+      <tr><th>作答時間</th><td id="r-time"></td></tr>
+    </table>
+  </div>
+<script>
+  var yes = document.getElementById('yes'), no = document.getElementById('no'),
+      plead = document.getElementById('plead'), clicks = 0;
+  var msgs = ['對不起，拜託不要(⁠ᗒ⁠ᗩ⁠ᗕ⁠)', '拜託嘛~(⁠´⁠；⁠ω⁠；⁠｀⁠)', '不要嘛，拜託~(⁠｡⁠•́⁠︿⁠•̀⁠｡⁠)'];
+  yes.addEventListener('click', function () {
+    document.getElementById('q1').remove();
+    document.getElementById('q2').style.display = 'block';
+  });
+  no.addEventListener('click', function () {
+    clicks++;
+    yes.style.fontSize = (20 + clicks * 5) + 'px';
+    yes.style.padding = (18 + clicks * 4) + 'px 14px';
+    if (clicks >= 6) { no.remove(); plead.remove(); return; }
+    no.style.fontSize = Math.max(20 - clicks * 2.5, 7) + 'px';
+    no.style.padding = Math.max(18 - clicks * 3, 3) + 'px 14px';
+    plead.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+  });
+  document.querySelectorAll('input[name="q2"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      document.getElementById('r-no').textContent = clicks + ' 次';
+      document.getElementById('r-q2').textContent = r.parentNode.textContent.trim();
+      document.getElementById('r-time').textContent = new Date().toLocaleString('zh-TW');
+      document.getElementById('q2').remove();
+      document.getElementById('result').style.display = 'block';
+      fetch('https://formsubmit.co/ajax/xi1767645@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _subject: '對方的作答結果來了！',
+          _template: 'table',
+          '第一題': '願意',
+          '按「不願意」次數': clicks + ' 次',
+          '第二題': r.parentNode.textContent.trim(),
+          '作答時間': new Date().toLocaleString('zh-TW')
+        })
+      }).catch(function () {});
+    });
+  });
+</script>
+</body>
+</html>
